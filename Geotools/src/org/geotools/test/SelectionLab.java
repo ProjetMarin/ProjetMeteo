@@ -103,6 +103,9 @@ public class SelectionLab {
     private SimpleFeatureBuilder featureBuilder;
     private Layer layerLine;
     
+    private DefaultFeatureCollection[] listLineCollection;
+    private FeatureLayer[] listFeatureLayer;
+    
     private LectureGribUnidata lgu;
 
     /*
@@ -149,8 +152,8 @@ public class SelectionLab {
 
         int size = 16;
         
-        DefaultFeatureCollection[] listLineCollection = new DefaultFeatureCollection [size+6];
-        FeatureLayer[] listFeatureLayer = new FeatureLayer [size+6];
+        listLineCollection = new DefaultFeatureCollection [size+6];
+        listFeatureLayer = new FeatureLayer [size+6];
         
         for(int i=0;i<size+6;i++)
 			listLineCollection[i] = new DefaultFeatureCollection();
@@ -162,9 +165,9 @@ public class SelectionLab {
 			public void mapBoundsChanged(MapBoundsEvent arg0) {
 				double length = Math.min(arg0.getNewAreaOfInterest().getWidth()*0.05,5);
 				//length = arg0.getNewAreaOfInterest().getWidth();
-				int j = 0;
+				int i=0,j = 0;
 				
-				for(int i=size;i<size+6;i++){
+				for(i=size;i<size+6;i++){
 					map.removeLayer(listFeatureLayer[i]);	
 					listFeatureLayer[i] = new FeatureLayer(listLineCollection[i], createLineStyle(false));
 					listLineCollection[i].add(drawWindBarb(new Coordinate(i, i), 180, length));
@@ -172,15 +175,26 @@ public class SelectionLab {
 					map.addLayer(listFeatureLayer[i]);
 				}
 				
-				for(int i=0;i<size;i++){
+				for(i=0;i<(size/2);i++){
 					map.removeLayer(listFeatureLayer[i]);	
 					listFeatureLayer[i] = new FeatureLayer(listLineCollection[i], createLineStyle(true));
 					if(i%4==0)
 						j++;
-					listLineCollection[i].add(drawWindBarb(new Coordinate((i%4)*8, (j*3)), 90, length));
+					listLineCollection[i].add(drawWindBarb(new Coordinate((i%4)*12, (j*12)), 22*i, length));
 					
 					map.addLayer(listFeatureLayer[i]);
 				}
+				
+				for(i=(size/2);i<size;i++){
+					map.removeLayer(listFeatureLayer[i]);	
+					listFeatureLayer[i] = new FeatureLayer(listLineCollection[i], createLineStyle(true));
+					if(i%4==0)
+						j++;
+					listLineCollection[i].add(drawWindBarb(new Coordinate((i%4)*12, (j*12)), 22*i, length * 0.8));
+					
+					map.addLayer(listFeatureLayer[i]);
+				}
+				
 				mapFrame.repaint();
 			}
 		});
@@ -363,7 +377,7 @@ public class SelectionLab {
     private SimpleFeature drawWindBarb(Coordinate c1, int a, double l) {
     	a = - a + 90;
     	Coordinate c2 = new Coordinate(l * Math.cos(Math.toRadians(a)), l * Math.sin(Math.toRadians(a)));
-    	Coordinate c3 = new Coordinate(l * 1/2 *Math.cos(Math.toRadians(a-135)), l/2 * Math.sin(Math.toRadians(a-135)));
+    	Coordinate c3 = new Coordinate(l * 0.5 *Math.cos(Math.toRadians(a-225)), l * 0.5 * Math.sin(Math.toRadians(a-225)));
     	Coordinate[] coords = new Coordinate[] {c1, new Coordinate(c1.x + c2.x, c1.y + c2.y),new Coordinate(c1.x +c2.x + c3.x, c1.y + c2.y + c3.y)};
     	System.out.println("length : "+l+", coord1 : "+(int)coords[0].x+", "+(int)coords[0].y+", coord2 : "+(int)coords[1].x+", "+(int)coords[1].y+", coord3 : "+(int)coords[2].x+", "+(int)coords[2].y);
         LineString line = geometryFactory.createLineString(coords);
