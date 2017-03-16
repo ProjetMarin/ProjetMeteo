@@ -105,7 +105,7 @@ public class CDF {
 
 		longitude.add(1);
 		longitude.add(2);
-		//longitude.add(3);
+		longitude.add(3);
 
 		latitude.add(4);
 		latitude.add(5);
@@ -124,7 +124,7 @@ public class CDF {
 		PointCDF p = new PointCDF(longitude,latitude,Vitesse,Direction,date);
 
 
-		String path = "H:/WorkspaceJava/NETCDF/test.nc";
+		String path = "test.nc";
 
 		EcritureCDF(p,path);
 		PointCDF p1 = LectureCDF(path);

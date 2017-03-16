@@ -31,7 +31,7 @@ public class LectureGribUnidata {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		String filename = "C:\\Users\\mathieu\\Downloads\\20170314_142130_.grb";
+		String filename = "..\\lib\\20170314_142130_.grb";
 		NetcdfFile ncfile = null;
 		try {
 			ncfile = NetcdfFile.open(filename);
