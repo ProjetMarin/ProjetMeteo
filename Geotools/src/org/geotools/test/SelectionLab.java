@@ -10,13 +10,11 @@
  */
 package org.geotools.test;
 
+import grib.LectureGribUnidata;
+
 import java.awt.Color;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -25,14 +23,11 @@ import javax.swing.JToolBar;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
-import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
@@ -44,18 +39,14 @@ import org.geotools.styling.Graphic;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Mark;
 import org.geotools.styling.Rule;
-import org.geotools.styling.SLD;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbolizer;
 import org.geotools.swing.JMapFrame;
-import org.geotools.swing.event.MapMouseEvent;
-import org.geotools.swing.tool.CursorTool;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.identity.FeatureId;
@@ -111,6 +102,8 @@ public class SelectionLab {
     private final GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
     private SimpleFeatureBuilder featureBuilder;
     private Layer layerLine;
+    
+    private LectureGribUnidata lgu;
 
     /*
      * The application method
@@ -136,6 +129,7 @@ public class SelectionLab {
      */
     public void displayShapefile(File file) throws Exception {
         FileDataStore store = FileDataStoreFinder.getDataStore(file);
+        lgu = new LectureGribUnidata();
         featureSource = store.getFeatureSource();
         setGeometry();
         
@@ -152,20 +146,41 @@ public class SelectionLab {
         
         SimpleFeatureType TYPE = DataUtilities.createType("test", "line", "the_geom:LineString");
         featureBuilder = new SimpleFeatureBuilder((SimpleFeatureType) TYPE);
+
+        int size = 16;
+        
+        DefaultFeatureCollection[] listLineCollection = new DefaultFeatureCollection [size+6];
+        FeatureLayer[] listFeatureLayer = new FeatureLayer [size+6];
+        
+        for(int i=0;i<size+6;i++)
+			listLineCollection[i] = new DefaultFeatureCollection();
         
         map.addLayer(layer);
         map.addMapBoundsListener(new MapBoundsListener() {
 			
 			@Override
-			public void mapBoundsChanged(MapBoundsEvent arg0) {				
-				map.removeLayer(layerLine);
-				lineCollection = new DefaultFeatureCollection();
-				layerLine = new FeatureLayer(lineCollection, createLineStyle());
-				double length = Math.min(arg0.getNewAreaOfInterest().getWidth()*0.05, 5);
-				System.out.println(length);
+			public void mapBoundsChanged(MapBoundsEvent arg0) {
+				double length = Math.min(arg0.getNewAreaOfInterest().getWidth()*0.05,5);
+				//length = arg0.getNewAreaOfInterest().getWidth();
+				int j = 0;
 				
-				lineCollection.add(drawWindBarb(new Coordinate(-3, 48), 180, length));
-				map.addLayer(layerLine);
+				for(int i=size;i<size+6;i++){
+					map.removeLayer(listFeatureLayer[i]);	
+					listFeatureLayer[i] = new FeatureLayer(listLineCollection[i], createLineStyle(false));
+					listLineCollection[i].add(drawWindBarb(new Coordinate(i, i), 180, length));
+					
+					map.addLayer(listFeatureLayer[i]);
+				}
+				
+				for(int i=0;i<size;i++){
+					map.removeLayer(listFeatureLayer[i]);	
+					listFeatureLayer[i] = new FeatureLayer(listLineCollection[i], createLineStyle(true));
+					if(i%4==0)
+						j++;
+					listLineCollection[i].add(drawWindBarb(new Coordinate((i%4)*8, (j*3)), 90, length));
+					
+					map.addLayer(listFeatureLayer[i]);
+				}
 				mapFrame.repaint();
 			}
 		});
@@ -322,10 +337,12 @@ public class SelectionLab {
     }
 // docs end set geometry
     
-    private Style createLineStyle() {
-        Stroke stroke = styleFactory.createStroke(
-                filterFactory.literal(Color.BLUE),
-                filterFactory.literal(2));
+    private Style createLineStyle(boolean c) {
+        Stroke stroke;
+        if(c)
+        	stroke = styleFactory.createStroke(filterFactory.literal(Color.BLUE),filterFactory.literal(2));
+        else
+        	stroke = styleFactory.createStroke(filterFactory.literal(new Color(0,0,0,0)),filterFactory.literal(2));
 
         /*
          * Setting the geometryPropertyName arg to null signals that we want to
@@ -344,9 +361,11 @@ public class SelectionLab {
     
     
     private SimpleFeature drawWindBarb(Coordinate c1, int a, double l) {
+    	a = - a + 90;
     	Coordinate c2 = new Coordinate(l * Math.cos(Math.toRadians(a)), l * Math.sin(Math.toRadians(a)));
-    	System.out.println(c1.toString() + " - " + c2.toString());
-    	Coordinate[] coords = new Coordinate[] {c1, new Coordinate(c1.x + c2.x, c1.y + c2.y)};
+    	Coordinate c3 = new Coordinate(l * 1/2 *Math.cos(Math.toRadians(a-135)), l/2 * Math.sin(Math.toRadians(a-135)));
+    	Coordinate[] coords = new Coordinate[] {c1, new Coordinate(c1.x + c2.x, c1.y + c2.y),new Coordinate(c1.x +c2.x + c3.x, c1.y + c2.y + c3.y)};
+    	System.out.println("length : "+l+", coord1 : "+(int)coords[0].x+", "+(int)coords[0].y+", coord2 : "+(int)coords[1].x+", "+(int)coords[1].y+", coord3 : "+(int)coords[2].x+", "+(int)coords[2].y);
         LineString line = geometryFactory.createLineString(coords);
         featureBuilder.add(line);
         return featureBuilder.buildFeature("LineString_Sample");
