@@ -1,5 +1,5 @@
+package grib;
 import java.io.IOException;
-import java.util.Date;
 import java.util.Formatter;
 import java.util.List;
 import java.lang.Math;
@@ -24,23 +24,36 @@ import ucar.nc2.ft.FeatureDatasetFactoryManager;
 import ucar.unidata.io.RandomAccessFile;
 
 public class LectureGribUnidata {
+	
+	List<Dimension> dim;
+	List<Dimension> list;
+	List<Variable> listVar;
+	List<Attribute> listAtt;
+	Array testlat;
+	Array testLon;
+	Array testTemp;
+	Array testTempRef;
+	Array testHeight;
+	Array testU;
+	Array testV;
 
 	public LectureGribUnidata() {
-		// TODO Auto-generated constructor stub
+		
 	}
 
-	public static void main(String[] args) {
+	public LectureGribUnidata init() {
 		// TODO Auto-generated method stub
+		
+		LectureGribUnidata lgu = new LectureGribUnidata();
 
-		String filename = "H:\\Documents\\IDL\\20170314_142130_.grb";
-
+		String filename = "..\\lib\\20170314_142130_.grb";
 		NetcdfFile ncfile = null;
 		try {
 			ncfile = NetcdfFile.open(filename);
 			// System.out.println(ncfile.getDetailInfo());
 
 			//		    System.out.println(ncfile.getGlobalAttributes());
-			List<Dimension> dim = ncfile.getDimensions();
+			dim = ncfile.getDimensions();
 					    System.out.println(dim.toString());
 			//  List<Variable> var = ncfile.getVariables();
 			// System.out.println(var.toString());
@@ -52,71 +65,50 @@ public class LectureGribUnidata {
 			//System.out.println(ncfile.getGlobalAttributes());
 
 			Group groupe = ncfile.getRootGroup();
-			List<Dimension> list= groupe.getDimensions();
+			list= groupe.getDimensions();
 			System.out.println(list.toString());
-			List<Variable> listVar = groupe.getVariables();
+			listVar = groupe.getVariables();
 			System.out.println(listVar.toString());
 			java.util.List<Array> array = ncfile.readArrays(listVar);
 			//System.out.println(array.toString());
-			List<Attribute> listAtt = groupe.getAttributes();
+			listAtt = groupe.getAttributes();
 
 			//récupération et affichage lattitude
 			Variable varLat = groupe.findVariable("lat");
 			//System.out.println(varLat.toString());
-			Array testlat = varLat.read();
+			testlat = varLat.read();
 			System.out.println(testlat.toString());
 
 			Variable varLon = groupe.findVariable("lon");
 		//	System.out.println(varLon.toString());
-			Array testLon = varLon.read();
+			testLon = varLon.read();
 			System.out.println(testLon.toString());
 
 			
 			//Récupération et affichage du temp
 			Variable varTemp = groupe.findVariable("time");
 		//	System.out.println(varTemp.toString());
-			Array testTemp = varTemp.read();
+			testTemp = varTemp.read();
 			System.out.println(testTemp.toString());
-			System.out.println(varTemp.getDescription());
-			System.out.println(varTemp.getDataType());
-			System.out.println(varTemp.getUnitsString());
-			String[] d = varTemp.getUnitsString().split(" ");
-			String[] h = d[2].split("T");
-			String day = h[0];
-			String hours = h[1];
-			hours = hours.replace("Z", "");
-			System.out.println(day);
-			System.out.println(hours);
-			String[] dayToDate = day.split("-");
-			String[] hoursToDate = hours.split(":");
-			int y = Integer.parseInt(dayToDate[0]);
-			int m = Integer.parseInt(dayToDate[1]);
-			int da = Integer.parseInt(dayToDate[2]);
-			System.out.println(hoursToDate[0]);
-			int ho = Integer.parseInt(hoursToDate[0]);
-			int min = Integer.parseInt(hoursToDate[1]);
-			int sec = Integer.parseInt(hoursToDate[2]);
-			
-			Date date = new Date(y,m,da,ho,min,sec);
-			System.out.println(date.toString());//Date date = new Date(varTemp.getUnitsString());
+	
 			Variable varTempRef = groupe.findVariable("reftime");
 		//	System.out.println(varTempRef.toString());
-			Array testTempRef = varTemp.read();
+			testTempRef = varTemp.read();
 			System.out.println(testTempRef.toString());
 
 			Variable varHeight = groupe.findVariable("height_above_ground");
 			//	System.out.println(varTemp.toString());
-			Array testHeight = varHeight.read();
+			testHeight = varHeight.read();
 			System.out.println(testHeight.toString());
 			
 			Variable varU = groupe.findVariable("u-component_of_wind_height_above_ground");
 			//   System.out.println(varU.toString());
-			Array testU = varU.read();
+			testU = varU.read();
 			System.out.println(testU.toString());
 			
 			Variable varV = groupe.findVariable("v-component_of_wind_height_above_ground");
 			//   System.out.println(varU.toString());
-			Array testV = varV.read();
+			testV = varV.read();
 			System.out.println(testV.toString());
 			
 			System.out.println(testlat.getSize());
@@ -205,7 +197,7 @@ public class LectureGribUnidata {
 			}
 		}
 
-
+		return lgu;
 	}
 
 }
