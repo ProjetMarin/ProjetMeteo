@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.List;
 import java.lang.Math;
@@ -31,7 +32,7 @@ public class LectureGribUnidata {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		String filename = "C:\\Users\\mathieu\\Downloads\\20170314_142130_.grb";
+		String filename = "H:\\Documents\\IDL\\20170314_142130_.grb";
 		NetcdfFile ncfile = null;
 		try {
 			ncfile = NetcdfFile.open(filename);
@@ -75,7 +76,28 @@ public class LectureGribUnidata {
 		//	System.out.println(varTemp.toString());
 			Array testTemp = varTemp.read();
 			System.out.println(testTemp.toString());
-	
+			System.out.println(varTemp.getDescription());
+			System.out.println(varTemp.getDataType());
+			System.out.println(varTemp.getUnitsString());
+			String[] d = varTemp.getUnitsString().split(" ");
+			String[] h = d[2].split("T");
+			String day = h[0];
+			String hours = h[1];
+			hours = hours.replace("Z", "");
+			System.out.println(day);
+			System.out.println(hours);
+			String[] dayToDate = day.split("-");
+			String[] hoursToDate = hours.split(":");
+			int y = Integer.parseInt(dayToDate[0]);
+			int m = Integer.parseInt(dayToDate[1]);
+			int da = Integer.parseInt(dayToDate[2]);
+			System.out.println(hoursToDate[0]);
+			int ho = Integer.parseInt(hoursToDate[0]);
+			int min = Integer.parseInt(hoursToDate[1]);
+			int sec = Integer.parseInt(hoursToDate[2]);
+			
+			Date date = new Date(y,m,da,ho,min,sec);
+			System.out.println(date.toString());//Date date = new Date(varTemp.getUnitsString());
 			Variable varTempRef = groupe.findVariable("reftime");
 		//	System.out.println(varTempRef.toString());
 			Array testTempRef = varTemp.read();
