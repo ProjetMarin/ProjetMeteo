@@ -1,10 +1,7 @@
 import java.io.IOException;
-import java.util.List;
 
-import ucar.ma2.Array;
+import ucar.ma2.IndexIterator;
 import ucar.nc2.Attribute;
-import ucar.nc2.Dimension;
-import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
