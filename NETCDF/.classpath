@@ -2,12 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-<<<<<<< HEAD
-	<classpathentry kind="lib" path="H:/Documents/IDL/netcdfAll-4.6.8.jar"/>
-	<classpathentry kind="lib" path="H:/Documents/IDL/slf4j-simple-1.7.24.jar"/>
-=======
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="H:/Documents/ProjetMeteo/lib/netcdfAll-4.6.8.jar"/>
+	<classpathentry kind="lib" path="H:/Documents/ProjetMeteo/lib/slf4j-api-1.7.24.jar"/>
 	<classpathentry kind="lib" path="H:/Documents/ProjetMeteo/lib/slf4j-simple-1.7.24.jar"/>
->>>>>>> fa69f5c75b915c556a08a8dd48fc26f93c59f318
 	<classpathentry kind="output" path="bin"/>
 </classpath>
